@@ -11,7 +11,7 @@ prompt = require("prompt-sync")();
 const ROWS = 3;
 const COLS = 3;
 
-const SYMBOL_COUNT = {
+const SYMBOLS_COUNT = {
   A: 2,
   B: 4,
   C: 6,
@@ -66,14 +66,28 @@ const getBet = (balance, lines) => {
 
 const spin = () => {
   const symbols = [];
-  for (const [symbol, count] of Object.entries(SYMBOL_COUNT)) {
+  for (const [symbol, count] of Object.entries(SYMBOLS_COUNT)) {
     for (let i = 0; i < count; i++) {
       symbols.push(symbol);
-      console.log(symbols);
     }
   }
+
+  const reels = [];
+  reels.push([]);
+  for (let i = 0; i < COLS; i++) {
+    const reelSymbols = [...symbols];
+    for (let j = 0; j < ROWS; j++) {
+      const randomIndex = Math.floor(Math.random() * reelSymbols.length);
+      const selectedSymbol = reelSymbols[randomIndex];
+      reels[i].push(selectedSymbol);
+      reelSymbols.splice(randomIndex, 1);
+    }
+  }
+  return reels;
 };
-spin();
+
+const reels = spin();
+console.log(reels);
 let balance = deposit();
 const numberOfLines = getNumberOfLines();
 const bet = getBet(balance, numberOfLines);
