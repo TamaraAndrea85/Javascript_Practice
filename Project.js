@@ -11,14 +11,14 @@ prompt = require("prompt-sync")();
 const ROWS = 3;
 const COLS = 3;
 
-const SYMBOLS_COUNT = {
+const symbol_COUNT = {
   A: 2,
   B: 4,
   C: 6,
   D: 8,
 };
 
-const SYMBOL_VALUE = {
+const symbol_VALUE = {
   A: 5,
   B: 4,
   C: 3,
@@ -66,7 +66,7 @@ const getBet = (balance, lines) => {
 
 const spin = () => {
   const symbols = [];
-  for (const [symbol, count] of Object.entries(SYMBOLS_COUNT)) {
+  for (const [symbol, count] of Object.entries(symbol_COUNT)) {
     for (let i = 0; i < count; i++) {
       symbols.push(symbol);
     }
@@ -113,10 +113,50 @@ const printRows = (rows) => {
   }
 };
 
-const reels = spin();
-console.log(reels);
-let balance = deposit();
-const numberOfLines = getNumberOfLines();
-const bet = getBet(balance, numberOfLines);
-const rows = transpose(reels);
-printRows(rows);
+const getWinnings = (rows, bet, getNumberOfLines) => {
+  let winnings = 0;
+
+  for (let row = 0; row < getNumberOfLines; row++) {
+    const symbols = rows[row].entries();
+    let allLines = true;
+
+    for (const symbol of symbols) {
+      if (symbol != symbols[0]) {
+        allLines = false;
+        break;
+      }
+    }
+    if (allSame) {
+      winnings += bet * symbol_VALUE[symbols[0]];
+    }
+  }
+
+  return winnings;
+};
+
+const game = () => {
+  let balance = deposit();
+
+  while (true) {
+    console.log("you have a blance of $" + balance);
+    const numberOfLines = getNumberOfLines();
+    const bet = getBet(balance, numberOfLines);
+    balance -= bet * numberOfLines;
+    const reels = spin();
+    const rows = transpose(reels);
+    printRows(rows);
+    const winnings = getWinnings(rows, bet, getNumberOfLines);
+    balance += winnings;
+    console.log("You wow!, $" + winnings.toString());
+
+    if (balance <= 0) {
+      console.log("You ran out of money!");
+      break;
+    }
+    const playAgain = prompt("Would you like to play again (Y/N)?");
+
+    if (playAgain != "Y") break;
+  }
+};
+
+game();
